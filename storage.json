@@ -1,0 +1,14 @@
+{
+    "type": "object",
+    "properties": {
+        "tabTimeout": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 15
+        },
+        "closeUnusedTabs": {
+            "type": "boolean",
+            "default": true
+        }
+    }
+}

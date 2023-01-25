@@ -1,0 +1,24 @@
+{
+    "name": "TabCrusher",
+    "version": "1.0.0",
+    "description": "Close unused tabs easily",
+    "permissions": ["tabs", "bookmarks","storage"],
+    "manifest_version": 3,
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
+    },
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "storage": {
+        "managed_schema": "storage.json"
+    },
+    "content_scripts": [{
+        "matches": ["<all_urls>"],
+        "js": ["TabScript.js"],
+        "run_at": "document_start"
+    }]
+
+}
+
