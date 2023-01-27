@@ -1,6 +1,29 @@
-.closer {
-    display: block;
+.add-coin {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+.add-coin label {
+    margin-right: 10px;
+}
+
+.add-coin input, .add-coin select {
+    margin-right: 10px;
+}
+
+#add-coin-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin: auto;
-    text-align: center;
-    align-items:center;
+}
+
+#coin-list {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+    border-collapse: separate;
+    border-spacing: 80%;
 }

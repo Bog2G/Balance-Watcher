@@ -1,34 +1,40 @@
 <!DOCTYPE html>
-    <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <title>TabCrusher</title>
-            <link rel="stylesheet" type="text/css" type="popup.css">
-            
-        </head>
-
-
-        <body>
-            <header>
-                <h1>TabCrusher</h1>
-            </header>
-            <main>
-                <div> 
-                    <p id="openTabs"></p>
-                </div>
-                <div class="closer">
-                    <label for="tab-timeout-hours">Close tabs that have been running for more than (hours):</label>
-                    <input type="integer" id="tab-timeout-hours">
-                    <button id="close" > Close tabs </button>
-                </div>
-                
-                
-                <div>
-                    <p id="running">  </p> 
-                </div>
-            </main>
-            <script type="text/javascript" src="popup.js"></script>
-        </body>
-
-
-    </html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Crypto Balance Tracker</title>
+    <link rel="stylesheet" type="text/css" href="popup.css">
+</head>
+<body>
+    <header>
+        <h1>Crypto Balance Tracker</h1>
+    </header>
+    <main>
+        <div id="coin-list">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Coin</th>
+                        <th>Balance</th>
+                        <th>Price(USD)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <div class="add-coin">
+            <button id="add-coin-button">+</button>
+            <div id="add-coin-form" style="display:none;">
+                <label for="coin-select">Add new coin:</label>
+                <select id="coin-select">
+                </select>
+                <label for="coin-balance">Balance:</label>
+                <input type="number" id="coin-balance" min="0">
+                <button id="add-coin-submit">Add</button>
+            </div>
+        </div>
+    </main>
+    <script type="text/javascript" src="popup.js"></script>
+</body>
+</html>
