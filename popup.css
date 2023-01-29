@@ -27,3 +27,7 @@
     border-collapse: separate;
     border-spacing: 80%;
 }
+
+.head-name {
+    text-align: center;
+}
