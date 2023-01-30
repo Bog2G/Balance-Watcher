@@ -76,6 +76,7 @@ document.getElementById("add-coin-submit").addEventListener("click", async funct
     // Hide the add-coin-form and show the add-coin-button
     document.getElementById("add-coin-form").style.display = "none";
     document.getElementById("add-coin-button").style.display = "block";
+    location.reload();
 
 });
 
