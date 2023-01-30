@@ -5,7 +5,7 @@ document.getElementById("add-coin-button").addEventListener("click", function() 
     document.getElementById("add-coin-button").style.display = "none";
 });
 
-
+// populate the select field with the crypto offered by the API
 async function populate() {
     console.log('populating');
     const res = await fetch('https://api.coingecko.com/api/v3/coins/list');
@@ -16,11 +16,22 @@ async function populate() {
     select.innerHTML = options;
   }
 
+async function coinPrice(coin) {
+    const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coin}&vs_currencies=usd`)
+    const price = await res.json();
+    const coinPrice = price[coin].usd;
+    console.log(coinPrice);
+    
+    return coinPrice;
+}
 
-document.getElementById("add-coin-submit").addEventListener("click", function() {
+
+document.getElementById("add-coin-submit").addEventListener("click", async function() {
+
+    
     let coin = document.getElementById("coin-select").value;
     let balance = document.getElementById("coin-balance").value;
-    let price = 20;
+    let price = parseFloat(await coinPrice(coin) * balance);
 
     let newRow = document.createElement("tr");
     newRow.style.cssText = "text-align: center;"
@@ -36,6 +47,7 @@ document.getElementById("add-coin-submit").addEventListener("click", function() 
 
     let balanceCell = document.createElement("td");
     balanceCell.innerHTML = balance;
+    balanceCell.setAttribute("contentEditable", true);
 
     let priceCell = document.createElement("td");
     priceCell.innerHTML = price;
@@ -68,13 +80,13 @@ document.getElementById("add-coin-submit").addEventListener("click", function() 
 });
 
 // take the saved info from the local storage and populate the table
-function populateTable() {
+async function populateTable() {
     let storedRows = JSON.parse(localStorage.getItem("createdRows")) || [];
     let tableBody = document.getElementById("coin-list").getElementsByTagName("tbody")[0];
     console.log(storedRows);
     // added this check incase tableBody is undefined
     if (tableBody) {
-        storedRows.forEach(row => {
+        storedRows.forEach(async row => {
             let newRow = document.createElement("tr");
             newRow.style.cssText = "text-align: center;"
 
@@ -83,6 +95,14 @@ function populateTable() {
 
             let balanceCell = document.createElement("td");
             balanceCell.innerHTML = row.balance;
+            balanceCell.setAttribute("contentEditable", true);
+            // when the balance is updated it saves the changes to local storage
+            balanceCell.addEventListener("blur", async function() {
+                row.balance = this.innerHTML;
+                row.price = parseFloat(await coinPrice(row.coin) * row.balance);
+                window.localStorage.setItem("createdRows", JSON.stringify(storedRows));
+                location.reload();
+            });
 
             let priceCell = document.createElement("td");
             priceCell.innerHTML = row.price;
@@ -111,11 +131,14 @@ function populateTable() {
     
 }
 
+
 // when the extension is loaded populate the table with the stored rows
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOMContentLoaded');
     populateTable();
 });
+
+
 
 // remove all entries from the local storage and refresh the extension to display changes
 document.getElementById("destroyAll").addEventListener("click", function() {
