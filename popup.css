@@ -31,3 +31,10 @@
 .head-name {
     text-align: center;
 }
+
+#destroyAll {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    margin: auto;
+}
