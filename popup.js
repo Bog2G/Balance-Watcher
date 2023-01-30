@@ -21,18 +21,26 @@ document.getElementById("add-coin-submit").addEventListener("click", function() 
     let coin = document.getElementById("coin-select").value;
     let balance = document.getElementById("coin-balance").value;
     let price = 20;
+
     let newRow = document.createElement("tr");
     newRow.style.cssText = "text-align: center;"
+    
     let removeButton = document.createElement("button");
     removeButton.setAttribute("id", "remove");
     removeButton.setAttribute("type", "button");
-    removeButton.style.cssText = "height: 13px"
+    removeButton.style.cssText = "height: 13px; text-align: center; display: flex; justify-content: center; align-items: center;";
+    removeButton.innerHTML = "x";
+
     let coinCell = document.createElement("td");
     coinCell.innerHTML = coin;
+
     let balanceCell = document.createElement("td");
     balanceCell.innerHTML = balance;
+
     let priceCell = document.createElement("td");
     priceCell.innerHTML = price;
+
+
     newRow.appendChild(coinCell);
     newRow.appendChild(balanceCell);
     newRow.appendChild(priceCell);
@@ -42,7 +50,7 @@ document.getElementById("add-coin-submit").addEventListener("click", function() 
 
     // add each created row to local storage
     let createdRows = JSON.parse(localStorage.getItem("createdRows")) || [];
-    createdRows.push({ coin, balance, price });
+    createdRows.push({ coin, balance, price, removeButton });
     localStorage.setItem("createdRows", JSON.stringify(createdRows));
 
 
@@ -59,35 +67,57 @@ document.getElementById("add-coin-submit").addEventListener("click", function() 
 
 });
 
+// take the saved info from the local storage and populate the table
 function populateTable() {
     let storedRows = JSON.parse(localStorage.getItem("createdRows")) || [];
     let tableBody = document.getElementById("coin-list").getElementsByTagName("tbody")[0];
     console.log(storedRows);
+    // added this check incase tableBody is undefined
     if (tableBody) {
         storedRows.forEach(row => {
             let newRow = document.createElement("tr");
             newRow.style.cssText = "text-align: center;"
+
             let coinCell = document.createElement("td");
             coinCell.innerHTML = row.coin;
+
             let balanceCell = document.createElement("td");
             balanceCell.innerHTML = row.balance;
+
             let priceCell = document.createElement("td");
             priceCell.innerHTML = row.price;
+
+            let removeButton = document.createElement("button");
+            removeButton.setAttribute("id", "remove");
+            removeButton.setAttribute("type", "button");
+            removeButton.style.cssText = "height: 13px; text-align: center; display: flex; justify-content: center; align-items: center;";
+            removeButton.innerHTML = "x";
+
+            // Add event listener to remove button
+            removeButton.addEventListener("click", function() {
+                let index = storedRows.indexOf(row);
+                storedRows.splice(index, 1);
+                window.localStorage.setItem("createdRows", JSON.stringify(storedRows));
+                location.reload();
+            });
+
             newRow.appendChild(coinCell);
             newRow.appendChild(balanceCell);
             newRow.appendChild(priceCell);
+            newRow.appendChild(removeButton);
             tableBody.appendChild(newRow);
         });
     }
     
 }
 
+// when the extension is loaded populate the table with the stored rows
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOMContentLoaded');
     populateTable();
 });
 
-
+// remove all entries from the local storage and refresh the extension to display changes
 document.getElementById("destroyAll").addEventListener("click", function() {
     window.localStorage.clear();
     location.reload();
