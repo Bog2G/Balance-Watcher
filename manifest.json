@@ -1,8 +1,8 @@
 {
     "name": "Balance Tracker",
     "version": "1.0.0",
-    "description": "Close unused tabs easily",
-    "permissions": ["tabs", "bookmarks","storage"],
+    "description": "Track your crypto in real time.",
+    "permissions": ["tabs","storage"],
     "manifest_version": 3,
     "background": {
         "service_worker": "background.js",
@@ -10,12 +10,6 @@
     },
     "action": {
         "default_popup": "popup.html"
-    },
-    "content_scripts": [
-        {
-            "matches": ["<all_urls>"],
-            "js": ["content_scripts.js"]
-        }
-    ]
+    }
 }
 
