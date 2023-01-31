@@ -16,6 +16,8 @@ async function populate() {
     select.innerHTML = options;
   }
 
+
+// get the coin price of the specified coin passed to the API
 async function coinPrice(coin) {
     const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coin}&vs_currencies=usd`)
     const price = await res.json();
@@ -31,7 +33,7 @@ document.getElementById("add-coin-submit").addEventListener("click", async funct
     
     let coin = document.getElementById("coin-select").value;
     let balance = document.getElementById("coin-balance").value;
-    let price = parseFloat(await coinPrice(coin) * balance);
+    let price = parseFloat((await coinPrice(coin) * balance).toFixed(5)) + "$";
 
     let newRow = document.createElement("tr");
     newRow.style.cssText = "text-align: center;"
@@ -39,7 +41,7 @@ document.getElementById("add-coin-submit").addEventListener("click", async funct
     let removeButton = document.createElement("button");
     removeButton.setAttribute("id", "remove");
     removeButton.setAttribute("type", "button");
-    removeButton.style.cssText = "height: 13px; text-align: center; display: flex; justify-content: center; align-items: center;";
+    removeButton.style.cssText = "height: 13px; text-align: center; display: flex; justify-content: center; align-items: center; cursor: pointer; background-color: red; border: 0; border-radius: 5px;";
     removeButton.innerHTML = "x";
 
     let coinCell = document.createElement("td");
@@ -100,7 +102,7 @@ async function populateTable() {
             // when the balance is updated it saves the changes to local storage
             balanceCell.addEventListener("blur", async function() {
                 row.balance = this.innerHTML;
-                row.price = parseFloat(await coinPrice(row.coin) * row.balance);
+                row.price = parseFloat((await coinPrice(row.coin) * row.balance).toFixed(5)) + "$";
                 window.localStorage.setItem("createdRows", JSON.stringify(storedRows));
                 location.reload();
             });
@@ -111,7 +113,7 @@ async function populateTable() {
             let removeButton = document.createElement("button");
             removeButton.setAttribute("id", "remove");
             removeButton.setAttribute("type", "button");
-            removeButton.style.cssText = "height: 13px; text-align: center; display: flex; justify-content: center; align-items: center;";
+            removeButton.style.cssText = "height: 13px; text-align: center; display: flex; justify-content: center; align-items: center; cursor: pointer; background-color: red; border: 0; border-radius: 5px;";
             removeButton.innerHTML = "x";
 
             // Add event listener to remove button
@@ -147,21 +149,3 @@ document.getElementById("destroyAll").addEventListener("click", function() {
     location.reload();
 });
 
-
-
-const select = document.getElementById("coin-select");
-const search = document.createElement('input');
-search.type = 'text';
-search.placeholder = 'search';
-search.addEventListener('input', function() {
-    const options = select.options;
-    for (const option of options) {
-        if (option.text.toLowerCase().indexOf(this.value.toLowerCase()) !== -1){
-            option.style.display = 'block';
-        } else {
-            option.style.display = 'none';
-        }
-    }
-});
-
-select.parentNode.insertBefore(search, select);

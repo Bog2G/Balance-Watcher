@@ -1,7 +1,18 @@
 body {
     width: 350px;
+    background:  #E46D1B;
+    height: auto;
+    margin-bottom: 1.5rem;
 }
 
+#main-body {
+    background: white;
+    width: 300px;
+    height: auto;
+    margin: auto;
+    border-radius: 15px;
+    
+}
 
 
 .add-coin {
@@ -23,6 +34,15 @@ body {
     align-items: center;
     justify-content: center;
     margin: auto;
+    margin-top: 1rem;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+}
+
+#add-coin-button:first-child {
+    font-weight: 800;
+    font-size: 190%;
 }
 
 #coin-list {
@@ -32,6 +52,7 @@ body {
     margin: auto;
     border-collapse: separate;
     border-spacing: 80%;
+
 }
 
 .head-name {
@@ -43,4 +64,45 @@ body {
     display: flex;
     justify-content: center;
     margin: auto;
+    margin-bottom: 0.6rem;
+    padding-top: 0.6rem;
+    background: transparent;
+    border-radius: 11px;
+    cursor: pointer;
+    border: 0;
+    font-weight: bolder;
+    font-size: larger;
+}
+
+#add-coin-submit {
+    cursor: pointer;
+    display: flex;
+    margin: auto;
+
+}
+
+
+#add-coin-form {
+    display: block;
+    display: flex;
+    margin: auto;
+    margin-top: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.9rem;
+
+
+}
+
+#coin-select {
+    width: 8rem;
+    margin-bottom: 0.5rem;
+}
+
+#coin-balance {
+    width: 8rem;
+    margin-bottom: 0.5rem;
+}
+
+#add-coin-submit {
+    cursor: pointer;
 }
