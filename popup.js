@@ -146,3 +146,22 @@ document.getElementById("destroyAll").addEventListener("click", function() {
     window.localStorage.clear();
     location.reload();
 });
+
+
+
+const select = document.getElementById("coin-select");
+const search = document.createElement('input');
+search.type = 'text';
+search.placeholder = 'search';
+search.addEventListener('input', function() {
+    const options = select.options;
+    for (const option of options) {
+        if (option.text.toLowerCase().indexOf(this.value.toLowerCase()) !== -1){
+            option.style.display = 'block';
+        } else {
+            option.style.display = 'none';
+        }
+    }
+});
+
+select.parentNode.insertBefore(search, select);
