@@ -1,6 +1,6 @@
 body {
     width: 350px;
-    background:  #E46D1B;
+    background: #E46D1B;
     height: auto;
     margin-bottom: 1.5rem;
 }
@@ -11,7 +11,7 @@ body {
     height: auto;
     margin: auto;
     border-radius: 15px;
-    
+
 }
 
 
@@ -25,7 +25,8 @@ body {
     margin-right: 10px;
 }
 
-.add-coin input, .add-coin select {
+.add-coin input,
+.add-coin select {
     margin-right: 10px;
 }
 
@@ -52,6 +53,7 @@ body {
     margin: auto;
     border-collapse: separate;
     border-spacing: 80%;
+    
 
 }
 

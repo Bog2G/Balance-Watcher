@@ -1,5 +1,5 @@
 // when the add coin button is clicked show the input form and hide the button
-document.getElementById("add-coin-button").addEventListener("click", function() {
+document.getElementById("add-coin-button").addEventListener("click", function () {
     populate();
     document.getElementById("add-coin-form").style.display = "block";
     document.getElementById("add-coin-button").style.display = "none";
@@ -10,11 +10,11 @@ async function populate() {
     console.log('populating');
     const res = await fetch('https://api.coingecko.com/api/v3/coins/list');
     const coins = await res.json();
-  
+
     let select = document.getElementById("coin-select");
     let options = coins.map(coin => `<option value="${coin.id}">${coin.name}</option>`).join("\n");
     select.innerHTML = options;
-  }
+}
 
 
 // get the coin price of the specified coin passed to the API
@@ -23,25 +23,31 @@ async function coinPrice(coin) {
     const price = await res.json();
     const coinPrice = price[coin].usd;
     console.log(coinPrice);
-    
+
+
     return coinPrice;
 }
 
+const coinPricey = setInterval(async function (coin) {
+    coinPrice(coin);
+    location.reload();
+}, 1000 * 10)
 
-document.getElementById("add-coin-submit").addEventListener("click", async function() {
 
-    
+document.getElementById("add-coin-submit").addEventListener("click", async function () {
+
+
     let coin = document.getElementById("coin-select").value;
     let balance = document.getElementById("coin-balance").value;
     let price = parseFloat((await coinPrice(coin) * balance).toFixed(5)) + "$";
 
     let newRow = document.createElement("tr");
-    newRow.style.cssText = "text-align: center;"
-    
+    newRow.style.cssText = "text-align: center; border: 1px solid black;";
+
     let removeButton = document.createElement("button");
     removeButton.setAttribute("id", "remove");
     removeButton.setAttribute("type", "button");
-    removeButton.style.cssText = "height: 13px; text-align: center; display: flex; justify-content: center; align-items: center; cursor: pointer; background-color: red; border: 0; border-radius: 5px;";
+    removeButton.style.cssText = "height: 13px; text-align: center; display: flex; justify-content: center; align-items: center; cursor: pointer; background-color: red; border: 0; border-radius: 5px; margin-top: 1.5px;";
     removeButton.innerHTML = "x";
 
     let coinCell = document.createElement("td");
@@ -91,7 +97,7 @@ async function populateTable() {
     if (tableBody) {
         storedRows.forEach(async row => {
             let newRow = document.createElement("tr");
-            newRow.style.cssText = "text-align: center;"
+            newRow.style.cssText = "text-align: center; outline: thin solid black; border-radius: 5px;margin-bottom: 3px;";
 
             let coinCell = document.createElement("td");
             coinCell.innerHTML = row.coin;
@@ -100,7 +106,7 @@ async function populateTable() {
             balanceCell.innerHTML = row.balance;
             balanceCell.setAttribute("contentEditable", true);
             // when the balance is updated it saves the changes to local storage
-            balanceCell.addEventListener("blur", async function() {
+            balanceCell.addEventListener("blur", async function () {
                 row.balance = this.innerHTML;
                 row.price = parseFloat((await coinPrice(row.coin) * row.balance).toFixed(5)) + "$";
                 window.localStorage.setItem("createdRows", JSON.stringify(storedRows));
@@ -113,11 +119,11 @@ async function populateTable() {
             let removeButton = document.createElement("button");
             removeButton.setAttribute("id", "remove");
             removeButton.setAttribute("type", "button");
-            removeButton.style.cssText = "height: 13px; text-align: center; display: flex; justify-content: center; align-items: center; cursor: pointer; background-color: red; border: 0; border-radius: 5px;";
+            removeButton.style.cssText = "height: 13px; text-align: center; display: flex; justify-content: center; align-items: center; cursor: pointer; background-color: red; border: 0; border-radius: 5px; margin-top: 1.5px;";
             removeButton.innerHTML = "x";
 
             // Add event listener to remove button
-            removeButton.addEventListener("click", function() {
+            removeButton.addEventListener("click", function () {
                 let index = storedRows.indexOf(row);
                 storedRows.splice(index, 1);
                 window.localStorage.setItem("createdRows", JSON.stringify(storedRows));
@@ -131,12 +137,12 @@ async function populateTable() {
             tableBody.appendChild(newRow);
         });
     }
-    
+
 }
 
 
 // when the extension is loaded populate the table with the stored rows
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log('DOMContentLoaded');
     populateTable();
 });
@@ -144,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 // remove all entries from the local storage and refresh the extension to display changes
-document.getElementById("destroyAll").addEventListener("click", function() {
+document.getElementById("destroyAll").addEventListener("click", function () {
     window.localStorage.clear();
     location.reload();
 });
