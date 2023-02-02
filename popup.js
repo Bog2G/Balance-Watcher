@@ -22,16 +22,11 @@ async function coinPrice(coin) {
     const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coin}&vs_currencies=usd`)
     const price = await res.json();
     const coinPrice = price[coin].usd;
-    console.log(coinPrice);
 
 
     return coinPrice;
 }
 
-const coinPricey = setInterval(async function (coin) {
-    coinPrice(coin);
-    location.reload();
-}, 1000 * 10)
 
 
 document.getElementById("add-coin-submit").addEventListener("click", async function () {
@@ -92,12 +87,11 @@ document.getElementById("add-coin-submit").addEventListener("click", async funct
 async function populateTable() {
     let storedRows = JSON.parse(localStorage.getItem("createdRows")) || [];
     let tableBody = document.getElementById("coin-list").getElementsByTagName("tbody")[0];
-    console.log(storedRows);
     // added this check incase tableBody is undefined
     if (tableBody) {
         storedRows.forEach(async row => {
             let newRow = document.createElement("tr");
-            newRow.style.cssText = "text-align: center; outline: thin solid black; border-radius: 5px;margin-bottom: 3px;";
+            newRow.style.cssText = "display: table-row; border: 10px solid white; outline: thin solid black; border-radius: 5px; line-height: 20px";
 
             let coinCell = document.createElement("td");
             coinCell.innerHTML = row.coin;
@@ -119,7 +113,7 @@ async function populateTable() {
             let removeButton = document.createElement("button");
             removeButton.setAttribute("id", "remove");
             removeButton.setAttribute("type", "button");
-            removeButton.style.cssText = "height: 13px; text-align: center; display: flex; justify-content: center; align-items: center; cursor: pointer; background-color: red; border: 0; border-radius: 5px; margin-top: 1.5px;";
+            removeButton.style.cssText = "height: 13px; text-align: center; display: flex; justify-content: center; align-items: center; cursor: pointer; background-color: red; border: 0; border-radius: 5px; margin-top: 4px;";
             removeButton.innerHTML = "x";
 
             // Add event listener to remove button
@@ -135,6 +129,14 @@ async function populateTable() {
             newRow.appendChild(priceCell);
             newRow.appendChild(removeButton);
             tableBody.appendChild(newRow);
+
+
+            setInterval(async () => {
+                const updatedPrice = await coinPrice(row.coin);
+                row.price = parseFloat((updatedPrice * row.balance).toFixed(5)) + "$";
+                console.log(row.price);
+                location.reload();
+            }, 1000 * 60 * 60)
         });
     }
 
