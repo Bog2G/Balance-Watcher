@@ -1,109 +1,108 @@
 body {
-    width: 350px;
-    background: #E46D1B;
-    height: auto;
-    margin-bottom: 1.5rem;
+  width: 350px;
+  background: #e46d1b;
+  height: auto;
+  margin-bottom: 1.5rem;
 }
 
 #main-body {
-    background: white;
-    width: 300px;
-    height: auto;
-    margin: auto;
-    border-radius: 15px;
-
+  background: white;
+  width: 300px;
+  height: auto;
+  margin: auto;
+  border-radius: 15px;
 }
 
-
 .add-coin {
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
 }
 
 .add-coin label {
-    margin-right: 10px;
+  margin-right: 10px;
 }
 
 .add-coin input,
 .add-coin select {
-    margin-right: 10px;
+  margin-right: 10px;
 }
 
 #add-coin-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: auto;
-    margin-top: 1rem;
-    cursor: pointer;
-    background: transparent;
-    border: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  margin-top: 1rem;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
 }
 
 #add-coin-button:first-child {
-    font-weight: 800;
-    font-size: 190%;
+  font-weight: 800;
+  font-size: 190%;
 }
 
 #coin-list {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: auto;
-    border-collapse: separate;
-    
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  border-collapse: separate;
+}
 
+#coin-list table {
+  border-collapse: collapse;
+}
+
+#coin-list th:first-child {
+  padding-right: 2.4rem;
 }
 
 .head-name {
-    text-align: center;
+  text-align: center;
 }
 
 #destroyAll {
-    text-align: center;
-    display: flex;
-    justify-content: center;
-    margin: auto;
-    margin-bottom: 0.6rem;
-    padding-top: 0.6rem;
-    background: transparent;
-    border-radius: 11px;
-    cursor: pointer;
-    border: 0;
-    font-weight: bolder;
-    font-size: larger;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  margin: auto;
+  margin-bottom: 0.6rem;
+  padding-top: 0.6rem;
+  background: transparent;
+  border-radius: 11px;
+  cursor: pointer;
+  border: 0;
+  font-weight: bolder;
+  font-size: larger;
 }
 
 #add-coin-submit {
-    cursor: pointer;
-    display: flex;
-    margin: auto;
-
+  cursor: pointer;
+  display: flex;
+  margin: auto;
 }
 
-
 #add-coin-form {
-    display: block;
-    display: flex;
-    margin: auto;
-    margin-top: 1rem;
-    padding-top: 0.5rem;
-    padding-bottom: 0.9rem;
-
-
+  display: flex;
+  margin: auto;
+  margin-top: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.9rem;
 }
 
 #coin-select {
-    width: 8rem;
-    margin-bottom: 0.5rem;
+  width: 8rem;
+  margin-bottom: 0.5rem;
 }
 
 #coin-balance {
-    width: 8rem;
-    margin-bottom: 0.5rem;
+  width: 8rem;
+  margin-bottom: 0.5rem;
 }
 
 #add-coin-submit {
-    cursor: pointer;
+  cursor: pointer;
 }
