@@ -1,108 +1,173 @@
+:root {
+  color-scheme: light;
+  --bg: #fff7f1;
+  --card: #ffffff;
+  --surface: #fff0e4;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --border: #f3d8c3;
+  --accent: #f97316;
+  --accent-strong: #ea580c;
+  --danger: #ef4444;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
-  width: 350px;
-  background: #e46d1b;
-  height: auto;
-  margin-bottom: 1.5rem;
+  width: 380px;
+  margin: 0;
+  padding: 12px;
+  font-family: Inter, "Segoe UI", Roboto, sans-serif;
+  background: radial-gradient(circle at top, #ffd5b3, var(--bg) 50%);
+  color: var(--text);
 }
 
 #main-body {
-  background: white;
-  width: 300px;
-  height: auto;
-  margin: auto;
-  border-radius: 15px;
-}
-
-.add-coin {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
-}
-
-.add-coin label {
-  margin-right: 10px;
-}
-
-.add-coin input,
-.add-coin select {
-  margin-right: 10px;
-}
-
-#add-coin-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: auto;
-  margin-top: 1rem;
-  cursor: pointer;
-  background: transparent;
-  border: 0;
-}
-
-#add-coin-button:first-child {
-  font-weight: 800;
-  font-size: 190%;
-}
-
-#coin-list {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: auto;
-  border-collapse: separate;
-}
-
-#coin-list table {
-  border-collapse: collapse;
-}
-
-#coin-list th:first-child {
-  padding-right: 2.4rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 10px 24px rgba(249, 115, 22, 0.14);
+  padding: 14px;
 }
 
 .head-name {
   text-align: center;
+  margin-bottom: 10px;
 }
 
-#destroyAll {
-  text-align: center;
+.eyebrow {
+  margin: 0;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.head-name h1 {
+  margin: 4px 0 0;
+  font-size: 22px;
+}
+
+.toolbar {
   display: flex;
-  justify-content: center;
-  margin: auto;
-  margin-bottom: 0.6rem;
-  padding-top: 0.6rem;
-  background: transparent;
-  border-radius: 11px;
-  cursor: pointer;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.table-card {
+  background: var(--surface);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+#coin-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#coin-list th,
+#coin-list td {
+  padding: 8px;
+  text-align: left;
+  font-size: 12px;
+}
+
+#coin-list thead {
+  background: rgba(249, 115, 22, 0.14);
+}
+
+#coin-list tbody tr:not(:last-child) {
+  border-bottom: 1px solid var(--border);
+}
+
+.balance-cell {
+  min-width: 85px;
+  border-radius: 6px;
+  outline: none;
+}
+
+.balance-cell:focus {
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.remove-button {
+  height: 22px;
+  min-width: 22px;
+  border-radius: 6px;
   border: 0;
-  font-weight: bolder;
-  font-size: larger;
-}
-
-#add-coin-submit {
+  color: #fff;
+  background: var(--danger);
   cursor: pointer;
-  display: flex;
-  margin: auto;
 }
 
-#add-coin-form {
-  display: flex;
-  margin: auto;
-  margin-top: 1rem;
-  padding-top: 0.5rem;
-  padding-bottom: 0.9rem;
+.add-coin {
+  margin-top: 12px;
 }
 
-#coin-select {
-  width: 8rem;
-  margin-bottom: 0.5rem;
+.coin-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
 }
 
-#coin-balance {
-  width: 8rem;
-  margin-bottom: 0.5rem;
+.coin-form label {
+  font-size: 12px;
+  color: var(--muted);
 }
 
-#add-coin-submit {
+.coin-form select,
+.coin-form input {
+  width: 100%;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  padding: 0 8px;
+}
+
+.primary-button,
+.ghost-button {
+  height: 32px;
+  border-radius: 10px;
+  border: 0;
+  font-weight: 600;
   cursor: pointer;
+}
+
+.primary-button {
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  color: #fff;
+  width: 100%;
+}
+
+.ghost-button {
+  background: transparent;
+  color: var(--muted);
+}
+
+.status-message {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.empty-state {
+  margin: 0;
+  padding: 14px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.hidden {
+  display: none !important;
 }

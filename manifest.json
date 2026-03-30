@@ -1,15 +1,15 @@
 {
-    "name": "Balance Tracker",
-    "version": "1.0.0",
-    "description": "Track your crypto in real time.",
-    "permissions": ["tabs","storage"],
-    "manifest_version": 3,
-    "background": {
-        "service_worker": "background.js",
-        "type": "module"
-    },
-    "action": {
-        "default_popup": "popup.html"
-    }
+  "name": "Balance Tracker",
+  "version": "1.1.0",
+  "description": "Track your crypto in real time.",
+  "manifest_version": 3,
+  "permissions": ["storage"],
+  "host_permissions": ["https://api.coingecko.com/*"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  }
 }
-

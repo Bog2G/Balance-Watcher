@@ -1,159 +1,272 @@
-// when the add coin button is clicked show the input form and hide the button
-document
-  .getElementById("add-coin-button")
-  .addEventListener("click", function () {
-    populate();
-    document.getElementById("add-coin-form").style.display = "block";
-    document.getElementById("add-coin-button").style.display = "none";
+const COINGECKO_COINS_URL = "https://api.coingecko.com/api/v3/coins/list";
+const COINGECKO_PRICE_URL =
+  "https://api.coingecko.com/api/v3/simple/price?vs_currencies=usd&ids=";
+const STORAGE_KEY = "createdRows";
+
+const usdFormatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+const elements = {
+  addCoinButton: document.getElementById("add-coin-button"),
+  addCoinForm: document.getElementById("add-coin-form"),
+  addCoinSubmit: document.getElementById("add-coin-submit"),
+  coinSelect: document.getElementById("coin-select"),
+  coinBalance: document.getElementById("coin-balance"),
+  destroyAll: document.getElementById("destroyAll"),
+  statusMessage: document.getElementById("status-message"),
+  emptyState: document.getElementById("empty-state"),
+  tableBody: document
+    .getElementById("coin-list")
+    .getElementsByTagName("tbody")[0],
+};
+
+const hasChromeStorage =
+  typeof chrome !== "undefined" && chrome.storage && chrome.storage.local;
+
+function showMessage(message) {
+  elements.statusMessage.textContent = message;
+  elements.statusMessage.classList.remove("hidden");
+}
+
+function clearMessage() {
+  elements.statusMessage.textContent = "";
+  elements.statusMessage.classList.add("hidden");
+}
+
+function showForm() {
+  elements.addCoinForm.classList.remove("hidden");
+  elements.addCoinButton.classList.add("hidden");
+}
+
+function hideForm() {
+  elements.addCoinForm.classList.add("hidden");
+  elements.addCoinButton.classList.remove("hidden");
+}
+
+function formatUsdValue(value) {
+  return usdFormatter.format(value);
+}
+
+function readPortfolio() {
+  return new Promise((resolve) => {
+    if (hasChromeStorage) {
+      chrome.storage.local.get([STORAGE_KEY], (result) => {
+        resolve(Array.isArray(result[STORAGE_KEY]) ? result[STORAGE_KEY] : []);
+      });
+      return;
+    }
+
+    const fallbackRows = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    resolve(Array.isArray(fallbackRows) ? fallbackRows : []);
   });
+}
 
-// populate the select field with the crypto offered by the API
-async function populate() {
-  console.log("populating");
-  const res = await fetch("https://api.coingecko.com/api/v3/coins/list");
+function writePortfolio(rows) {
+  return new Promise((resolve) => {
+    if (hasChromeStorage) {
+      chrome.storage.local.set({ [STORAGE_KEY]: rows }, resolve);
+      return;
+    }
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(rows));
+    resolve();
+  });
+}
+
+async function fetchCoins() {
+  const res = await fetch(COINGECKO_COINS_URL);
+  if (!res.ok) {
+    throw new Error("Unable to fetch coin list");
+  }
+
   const coins = await res.json();
-
-  let select = document.getElementById("coin-select");
-  let options = coins
-    .map((coin) => `<option value="${coin.id}">${coin.name}</option>`)
-    .join("\n");
-  select.innerHTML = options;
+  return coins
+    .filter((coin) => coin && coin.id && coin.name)
+    .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-// get the coin price of the specified coin passed to the API
-async function coinPrice(coin) {
-  const res = await fetch(
-    `https://api.coingecko.com/api/v3/simple/price?ids=${coin}&vs_currencies=usd`
-  );
-  const price = await res.json();
-  const coinPrice = price[coin].usd;
+async function fetchCoinPrice(coinId) {
+  const res = await fetch(`${COINGECKO_PRICE_URL}${encodeURIComponent(coinId)}`);
 
-  return coinPrice;
+  if (!res.ok) {
+    throw new Error(`Unable to fetch price for ${coinId}`);
+  }
+
+  const payload = await res.json();
+  const usd = payload?.[coinId]?.usd;
+
+  if (typeof usd !== "number") {
+    throw new Error(`Invalid price data for ${coinId}`);
+  }
+
+  return usd;
 }
 
-document
-  .getElementById("add-coin-submit")
-  .addEventListener("click", async function () {
-    let coin = document.getElementById("coin-select").value;
-    let balance = document.getElementById("coin-balance").value;
-    let price =
-      parseFloat(((await coinPrice(coin)) * balance).toFixed(5)) + "$";
+function createRemoveButton(onClick) {
+  const button = document.createElement("button");
+  button.setAttribute("type", "button");
+  button.className = "remove-button";
+  button.textContent = "×";
+  button.setAttribute("aria-label", "Remove coin");
+  button.addEventListener("click", onClick);
+  return button;
+}
 
-    let newRow = document.createElement("tr");
-    newRow.style.cssText = "text-align: center; border: 1px solid black;";
+function setEmptyStateVisible(isVisible) {
+  elements.emptyState.classList.toggle("hidden", !isVisible);
+}
 
-    let removeButton = document.createElement("button");
-    removeButton.setAttribute("id", "remove");
-    removeButton.setAttribute("type", "button");
-    removeButton.style.cssText =
-      "height: 13px; text-align: center; display: flex; justify-content: center; align-items: center; cursor: pointer; background-color: red; border: 0; border-radius: 5px; margin-top: 1.5px;";
-    removeButton.innerHTML = "x";
+function safeStoredPrice(row) {
+  if (typeof row.price === "string" && row.price.length > 0) {
+    return row.price;
+  }
 
-    let coinCell = document.createElement("td");
-    coinCell.innerHTML = coin;
+  return "--";
+}
 
-    let balanceCell = document.createElement("td");
-    balanceCell.innerHTML = balance;
+async function renderTable() {
+  const portfolio = await readPortfolio();
+  elements.tableBody.innerHTML = "";
+  setEmptyStateVisible(portfolio.length === 0);
+
+  for (const row of portfolio) {
+    const tr = document.createElement("tr");
+
+    const coinCell = document.createElement("td");
+    coinCell.textContent = row.coin;
+
+    const balanceCell = document.createElement("td");
+    balanceCell.textContent = row.balance;
+    balanceCell.className = "balance-cell";
     balanceCell.setAttribute("contentEditable", true);
 
-    let priceCell = document.createElement("td");
-    priceCell.innerHTML = price;
+    const priceCell = document.createElement("td");
+    try {
+      const liveCoinPrice = await fetchCoinPrice(row.coin);
+      const totalValue = liveCoinPrice * Number(row.balance);
+      row.price = formatUsdValue(totalValue);
+      priceCell.textContent = row.price;
+    } catch (error) {
+      priceCell.textContent = safeStoredPrice(row);
+      showMessage("Some prices could not be refreshed. Showing last known values.");
+    }
 
-    newRow.appendChild(coinCell);
-    newRow.appendChild(balanceCell);
-    newRow.appendChild(priceCell);
-    newRow.appendChild(removeButton);
-    document
-      .getElementById("coin-list")
-      .getElementsByTagName("tbody")[0]
-      .appendChild(newRow);
+    balanceCell.addEventListener("blur", async () => {
+      const nextBalance = Number(balanceCell.textContent);
+      if (!Number.isFinite(nextBalance) || nextBalance < 0) {
+        balanceCell.textContent = row.balance;
+        showMessage("Balance must be a positive number.");
+        return;
+      }
 
-    // add each created row to local storage
-    let createdRows = JSON.parse(localStorage.getItem("createdRows")) || [];
-    createdRows.push({ coin, balance, price, removeButton });
-    localStorage.setItem("createdRows", JSON.stringify(createdRows));
+      row.balance = nextBalance;
 
-    // Clear the selected coin, entered balance and the price
-    document.getElementById("coin-select").selectedIndex = 0;
-    document.getElementById("coin-balance").value = "";
+      try {
+        const latestPrice = await fetchCoinPrice(row.coin);
+        row.price = formatUsdValue(latestPrice * nextBalance);
+      } catch (error) {
+        showMessage("Price refresh failed. Balance was saved anyway.");
+      }
 
-    // Hide the add-coin-form and show the add-coin-button
-    document.getElementById("add-coin-form").style.display = "none";
-    document.getElementById("add-coin-button").style.display = "block";
-    location.reload();
-  });
-
-// take the saved info from the local storage and populate the table
-async function populateTable() {
-  let storedRows = JSON.parse(localStorage.getItem("createdRows")) || [];
-  let tableBody = document
-    .getElementById("coin-list")
-    .getElementsByTagName("tbody")[0];
-  // added this check incase tableBody is undefined
-  if (tableBody) {
-    storedRows.forEach(async (row) => {
-      let newRow = document.createElement("tr");
-      newRow.style.cssText =
-        "display: table-row; border-bottom: 1px solid black !important; border-radius: 5px; line-height: 20px; padding-bottom: 2rem";
-
-      let coinCell = document.createElement("td");
-      coinCell.innerHTML = row.coin;
-
-      let balanceCell = document.createElement("td");
-      balanceCell.innerHTML = row.balance;
-      balanceCell.setAttribute("contentEditable", true);
-      // when the balance is updated it saves the changes to local storage
-      balanceCell.addEventListener("blur", async function () {
-        row.balance = this.innerHTML;
-        row.price =
-          parseFloat(((await coinPrice(row.coin)) * row.balance).toFixed(5)) +
-          "$";
-        window.localStorage.setItem("createdRows", JSON.stringify(storedRows));
-        location.reload();
-      });
-
-      let priceCell = document.createElement("td");
-      priceCell.innerHTML = row.price;
-
-      let removeButton = document.createElement("button");
-      removeButton.setAttribute("id", "remove");
-      removeButton.setAttribute("type", "button");
-      removeButton.style.cssText =
-        "height: 13px; text-align: center; display: flex; justify-content: center; align-items: center; cursor: pointer; background-color: red; border: 0; border-radius: 5px; margin-top: 4px;";
-      removeButton.innerHTML = "x";
-
-      // Add event listener to remove button
-      removeButton.addEventListener("click", function () {
-        let index = storedRows.indexOf(row);
-        storedRows.splice(index, 1);
-        window.localStorage.setItem("createdRows", JSON.stringify(storedRows));
-        location.reload();
-      });
-
-      newRow.appendChild(coinCell);
-      newRow.appendChild(balanceCell);
-      newRow.appendChild(priceCell);
-      newRow.appendChild(removeButton);
-      tableBody.appendChild(newRow);
-
-      setInterval(async () => {
-        const updatedPrice = await coinPrice(row.coin);
-        row.price = parseFloat((updatedPrice * row.balance).toFixed(5)) + "$";
-        console.log(row.price);
-        location.reload();
-      }, 1000 * 60 * 60);
+      await writePortfolio(portfolio);
+      await renderTable();
     });
+
+    const removeButton = createRemoveButton(async () => {
+      const nextRows = portfolio.filter((portfolioRow) => portfolioRow.id !== row.id);
+      await writePortfolio(nextRows);
+      if (nextRows.length === 0) {
+        clearMessage();
+      }
+      await renderTable();
+    });
+
+    tr.appendChild(coinCell);
+    tr.appendChild(balanceCell);
+    tr.appendChild(priceCell);
+
+    const removeCell = document.createElement("td");
+    removeCell.appendChild(removeButton);
+    tr.appendChild(removeCell);
+
+    elements.tableBody.appendChild(tr);
+  }
+
+  await writePortfolio(portfolio);
+}
+
+function populateSelectWithFallback() {
+  elements.coinSelect.innerHTML =
+    '<option value="bitcoin">Bitcoin</option><option value="ethereum">Ethereum</option><option value="solana">Solana</option>';
+}
+
+async function populateSelect() {
+  try {
+    const coins = await fetchCoins();
+    elements.coinSelect.innerHTML = coins
+      .map((coin) => `<option value="${coin.id}">${coin.name}</option>`)
+      .join("\n");
+  } catch (error) {
+    populateSelectWithFallback();
+    showMessage("Live coin list is unavailable. Using a quick starter list.");
   }
 }
 
-// when the extension is loaded populate the table with the stored rows
-document.addEventListener("DOMContentLoaded", function () {
-  console.log("DOMContentLoaded");
-  populateTable();
-});
+async function addCoin() {
+  const coin = elements.coinSelect.value;
+  const balance = Number(elements.coinBalance.value);
 
-// remove all entries from the local storage and refresh the extension to display changes
-document.getElementById("destroyAll").addEventListener("click", function () {
-  window.localStorage.clear();
-  location.reload();
-});
+  if (!coin || !Number.isFinite(balance) || balance < 0) {
+    showMessage("Choose a coin and enter a valid balance.");
+    return;
+  }
+
+  const portfolio = await readPortfolio();
+  const entry = {
+    id: `${coin}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    coin,
+    balance,
+    price: "--",
+  };
+
+  try {
+    const price = await fetchCoinPrice(coin);
+    entry.price = formatUsdValue(price * balance);
+    clearMessage();
+  } catch (error) {
+    showMessage("Coin added, but live price is currently unavailable.");
+  }
+
+  portfolio.push(entry);
+
+  await writePortfolio(portfolio);
+  elements.coinBalance.value = "";
+  elements.coinSelect.selectedIndex = 0;
+  hideForm();
+  await renderTable();
+}
+
+async function clearPortfolio() {
+  await writePortfolio([]);
+  clearMessage();
+  await renderTable();
+}
+
+async function init() {
+  elements.addCoinButton.addEventListener("click", showForm);
+  elements.addCoinSubmit.addEventListener("click", addCoin);
+  elements.destroyAll.addEventListener("click", clearPortfolio);
+
+  await populateSelect();
+  await renderTable();
+
+  if (!hasChromeStorage) {
+    showMessage("Running outside extension mode: using local storage fallback.");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", init);
