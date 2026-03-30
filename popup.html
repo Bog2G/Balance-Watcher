@@ -2,41 +2,54 @@
 <html lang="en-US">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Crypto Balance Tracker</title>
     <link rel="stylesheet" type="text/css" href="popup.css" />
   </head>
   <body>
-    <header class="head-name">
-      <h1>Crypto Balance Tracker</h1>
-    </header>
     <main id="main-body">
-      <div>
-        <button type="button" id="destroyAll">Remove all entries</button>
+      <header class="head-name">
+        <p class="eyebrow">Balance Watcher</p>
+        <h1>Crypto Portfolio</h1>
+      </header>
+
+      <p id="status-message" class="status-message hidden" aria-live="polite"></p>
+
+      <div class="toolbar">
+        <button type="button" id="destroyAll" class="ghost-button">
+          Clear Portfolio
+        </button>
       </div>
-      <div id="coin-list">
+
+      <section id="coin-list" class="table-card">
         <table>
           <thead>
             <tr>
               <th>Coin</th>
               <th>Balance</th>
-              <th>Price(USD)</th>
+              <th>Value (USD)</th>
+              <th></th>
             </tr>
           </thead>
           <tbody></tbody>
         </table>
-      </div>
-      <div class="add-coin">
-        <button id="add-coin-button">+</button>
-        <div id="add-coin-form" style="display: none">
-          <label id="select-label" for="coin-select">Add new coin:</label>
+        <p id="empty-state" class="empty-state hidden">
+          No coins yet. Add your first holding below.
+        </p>
+      </section>
+
+      <section class="add-coin">
+        <button id="add-coin-button" class="primary-button" type="button">+ Add Coin</button>
+        <div id="add-coin-form" class="coin-form hidden">
+          <label for="coin-select">Coin</label>
           <select id="coin-select"></select>
-          <br />
-          <label for="coin-balance">Balance:</label>
-          <input type="number" id="coin-balance" min="0" />
-          <br />
-          <button id="add-coin-submit">Add</button>
+
+          <label for="coin-balance">Balance</label>
+          <input type="number" id="coin-balance" min="0" step="any" placeholder="0.00" />
+
+          <button id="add-coin-submit" class="primary-button" type="button">Save</button>
         </div>
-      </div>
+      </section>
     </main>
     <script type="text/javascript" src="popup.js"></script>
   </body>
