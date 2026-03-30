@@ -158,6 +158,8 @@ async function renderTable() {
 
     elements.tableBody.appendChild(tr);
   }
+
+  await writePortfolio(portfolio);
 }
 
 async function populateSelect() {
