@@ -24,9 +24,6 @@ const elements = {
     .getElementsByTagName("tbody")[0],
 };
 
-const hasChromeStorage =
-  typeof chrome !== "undefined" && chrome.storage && chrome.storage.local;
-
 function showMessage(message) {
   elements.statusMessage.textContent = message;
   elements.statusMessage.classList.remove("hidden");
@@ -53,27 +50,15 @@ function formatUsdValue(value) {
 
 function readPortfolio() {
   return new Promise((resolve) => {
-    if (hasChromeStorage) {
-      chrome.storage.local.get([STORAGE_KEY], (result) => {
-        resolve(Array.isArray(result[STORAGE_KEY]) ? result[STORAGE_KEY] : []);
-      });
-      return;
-    }
-
-    const fallbackRows = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-    resolve(Array.isArray(fallbackRows) ? fallbackRows : []);
+    chrome.storage.local.get([STORAGE_KEY], (result) => {
+      resolve(Array.isArray(result[STORAGE_KEY]) ? result[STORAGE_KEY] : []);
+    });
   });
 }
 
 function writePortfolio(rows) {
   return new Promise((resolve) => {
-    if (hasChromeStorage) {
-      chrome.storage.local.set({ [STORAGE_KEY]: rows }, resolve);
-      return;
-    }
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(rows));
-    resolve();
+    chrome.storage.local.set({ [STORAGE_KEY]: rows }, resolve);
   });
 }
 
@@ -120,14 +105,6 @@ function setEmptyStateVisible(isVisible) {
   elements.emptyState.classList.toggle("hidden", !isVisible);
 }
 
-function safeStoredPrice(row) {
-  if (typeof row.price === "string" && row.price.length > 0) {
-    return row.price;
-  }
-
-  return "--";
-}
-
 async function renderTable() {
   const portfolio = await readPortfolio();
   elements.tableBody.innerHTML = "";
@@ -145,15 +122,9 @@ async function renderTable() {
     balanceCell.setAttribute("contentEditable", true);
 
     const priceCell = document.createElement("td");
-    try {
-      const liveCoinPrice = await fetchCoinPrice(row.coin);
-      const totalValue = liveCoinPrice * Number(row.balance);
-      row.price = formatUsdValue(totalValue);
-      priceCell.textContent = row.price;
-    } catch (error) {
-      priceCell.textContent = safeStoredPrice(row);
-      showMessage("Some prices could not be refreshed. Showing last known values.");
-    }
+    const liveCoinPrice = await fetchCoinPrice(row.coin);
+    const totalValue = liveCoinPrice * Number(row.balance);
+    priceCell.textContent = formatUsdValue(totalValue);
 
     balanceCell.addEventListener("blur", async () => {
       const nextBalance = Number(balanceCell.textContent);
@@ -164,24 +135,16 @@ async function renderTable() {
       }
 
       row.balance = nextBalance;
-
-      try {
-        const latestPrice = await fetchCoinPrice(row.coin);
-        row.price = formatUsdValue(latestPrice * nextBalance);
-      } catch (error) {
-        showMessage("Price refresh failed. Balance was saved anyway.");
-      }
-
+      const latestPrice = await fetchCoinPrice(row.coin);
+      row.price = formatUsdValue(latestPrice * nextBalance);
       await writePortfolio(portfolio);
+      clearMessage();
       await renderTable();
     });
 
     const removeButton = createRemoveButton(async () => {
       const nextRows = portfolio.filter((portfolioRow) => portfolioRow.id !== row.id);
       await writePortfolio(nextRows);
-      if (nextRows.length === 0) {
-        clearMessage();
-      }
       await renderTable();
     });
 
@@ -199,21 +162,11 @@ async function renderTable() {
   await writePortfolio(portfolio);
 }
 
-function populateSelectWithFallback() {
-  elements.coinSelect.innerHTML =
-    '<option value="bitcoin">Bitcoin</option><option value="ethereum">Ethereum</option><option value="solana">Solana</option>';
-}
-
 async function populateSelect() {
-  try {
-    const coins = await fetchCoins();
-    elements.coinSelect.innerHTML = coins
-      .map((coin) => `<option value="${coin.id}">${coin.name}</option>`)
-      .join("\n");
-  } catch (error) {
-    populateSelectWithFallback();
-    showMessage("Live coin list is unavailable. Using a quick starter list.");
-  }
+  const coins = await fetchCoins();
+  elements.coinSelect.innerHTML = coins
+    .map((coin) => `<option value="${coin.id}">${coin.name}</option>`)
+    .join("\n");
 }
 
 async function addCoin() {
@@ -225,28 +178,22 @@ async function addCoin() {
     return;
   }
 
+  const price = await fetchCoinPrice(coin);
+  const totalValue = formatUsdValue(price * balance);
+
   const portfolio = await readPortfolio();
-  const entry = {
+  portfolio.push({
     id: `${coin}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
     coin,
     balance,
-    price: "--",
-  };
-
-  try {
-    const price = await fetchCoinPrice(coin);
-    entry.price = formatUsdValue(price * balance);
-    clearMessage();
-  } catch (error) {
-    showMessage("Coin added, but live price is currently unavailable.");
-  }
-
-  portfolio.push(entry);
+    price: totalValue,
+  });
 
   await writePortfolio(portfolio);
   elements.coinBalance.value = "";
   elements.coinSelect.selectedIndex = 0;
   hideForm();
+  clearMessage();
   await renderTable();
 }
 
@@ -257,15 +204,15 @@ async function clearPortfolio() {
 }
 
 async function init() {
-  elements.addCoinButton.addEventListener("click", showForm);
-  elements.addCoinSubmit.addEventListener("click", addCoin);
-  elements.destroyAll.addEventListener("click", clearPortfolio);
+  try {
+    await populateSelect();
+    await renderTable();
 
-  await populateSelect();
-  await renderTable();
-
-  if (!hasChromeStorage) {
-    showMessage("Running outside extension mode: using local storage fallback.");
+    elements.addCoinButton.addEventListener("click", showForm);
+    elements.addCoinSubmit.addEventListener("click", addCoin);
+    elements.destroyAll.addEventListener("click", clearPortfolio);
+  } catch (error) {
+    showMessage("Unable to load prices right now. Please try again.");
   }
 }
 
